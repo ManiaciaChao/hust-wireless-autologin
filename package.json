@@ -1,0 +1,11 @@
+{
+    "name": "hust-wireless-autologin",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "dependencies": {
+        "got": "^9.6.0"
+    },
+    "description": "Help you connect to HUST_WIRELESS automatically.",
+    "author": "maniacata"
+}
