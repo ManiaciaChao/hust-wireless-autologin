@@ -7,8 +7,8 @@
         "got": "^9.6.0"
     },
     "scripts": {
-        "login": "node ./client/index.js -i",
-        "logout": "node ./client/index.js -o",
+        "login": "cd client && node ./index.js -i",
+        "logout": "cd client && node ./index.js -o",
         "serve": "node ./server/index.js"
     },
     "description": "Help you connect to HUST_WIRELESS automatically.",

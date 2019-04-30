@@ -2,11 +2,14 @@
 const process = require('process');
 const got = require('got');
 const dgram = require('dgram');
-const { UDP_ADDRESS, UDP_PORT } = require('./config.json');
+const RSA = require('./rsa-loader');
+const { UDP_ADDRESS, UDP_PORT, RSA_KEY } = require('./config.json');
 
-const state = {
-    hasRecieved: false
-};
+/**
+ * @description RSA Encrypt for Safety
+ */
+const encrypt = password =>
+    RSA.encryptedString(RSA.RSAKeyPair(...RSA_KEY), password);
 
 /**
  * @description Handle CampusNet Connection
@@ -28,10 +31,11 @@ const CampusNet = {
         const queryString = qsResult.body.split('?')[1].split(`'`)[0];
         const form = {
             userId: userInfo.username,
-            password: userInfo.password,
+            password: encrypt(userInfo.password),
             queryString: queryString,
             operatorPwd: '',
-            validcode: ''
+            validcode: '',
+            passwordEncrypt: 'true'
         };
         const loginResult = await got.post(
             'http://192.168.50.3:8080/eportal/InterFace.do?method=login',
