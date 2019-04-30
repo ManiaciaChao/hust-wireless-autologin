@@ -9,6 +9,7 @@
     "scripts": {
         "login": "cd client && node ./index.js -i",
         "logout": "cd client && node ./index.js -o",
+        "watch": "cd client && node ./index.js -w",
         "serve": "node ./server/index.js"
     },
     "description": "Help you connect to HUST_WIRELESS automatically.",

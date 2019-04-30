@@ -3,14 +3,14 @@ const process = require('process');
 const got = require('got');
 const dgram = require('dgram');
 const RSA = require('./rsa-loader');
-const { UDP_ADDRESS, UDP_PORT, RSA_KEY } = require('./config.json');
+const CONFIG = require('./config.json');
 
 /**
- * @description RSA Encrypt for Safety
+ * @description Helper Functions
  */
 const encrypt = password =>
-    RSA.encryptedString(RSA.RSAKeyPair(...RSA_KEY), password);
-
+    RSA.encryptedString(RSA.RSAKeyPair(...CONFIG.RSA_KEY), password);
+const clear = () => process.stdout.write('\033c');
 /**
  * @description Handle CampusNet Connection
  */
@@ -64,7 +64,7 @@ const CampusNet = {
 /**
  * @description Callback for UDP Server's response
  */
-const login = async (msg, rinfo) => {
+const loginHandler = async (msg, rinfo) => {
     const isOnline = await CampusNet.connection();
     if (isOnline) {
         return 'Already Online.';
@@ -77,7 +77,7 @@ const login = async (msg, rinfo) => {
  */
 const udpClient = dgram.createSocket('udp4');
 udpClient.on('message', (msg, rinfo) => {
-    login(msg, rinfo).then(data => console.log(data));
+    loginHandler(msg, rinfo).then(data => console.log(data));
 });
 ['close', 'error'].forEach(e =>
     udpClient.on(e, function() {
@@ -90,18 +90,45 @@ udpClient.on('message', (msg, rinfo) => {
 (async () => {
     const [, , action, userIndex] = process.argv;
     const isOnline = await CampusNet.connection();
-    if (action === '-i') {
+    const tryLogin = () => {
         if (isOnline) {
-            console.log('Already Online.');
-            return;
+            return true;
         }
         const cmd = 'getAccount';
-        udpClient.send(cmd, 0, cmd.length, UDP_PORT, UDP_ADDRESS);
+        udpClient.send(cmd, 0, cmd.length, CONFIG.UDP_PORT, CONFIG.UDP_ADDRESS);
+        return false;
+    };
+    /**
+     * @description login
+     * Usage: node index.js -i
+     */
+    if (action === '-i') {
+        if (tryLogin()) {
+            console.log('Already Online.');
+        }
+        /**
+         * @description logout
+         * Usage: node index.js -o <optional:userIndex>
+         */
     } else if (action === '-o') {
         if (!isOnline) {
             console.log('Already Offine.');
             return;
         }
         console.log(await CampusNet.logout(userIndex));
+        /**
+         * @description watch
+         * Usage: node index.js -w
+         */
+    } else if (action === '-w') {
+        setInterval(() => {
+            clear();
+            console.log('Detecting Connection...');
+            if (tryLogin()) {
+                console.log('Already Online.');
+            } else {
+                console.log('Reconnecting...');
+            }
+        }, CONFIG.CHECK_INTERVAL * 1000);
     }
 })();
