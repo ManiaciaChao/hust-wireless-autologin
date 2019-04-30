@@ -2,14 +2,22 @@
 const process = require('process');
 const got = require('got');
 const dgram = require('dgram');
-const UDP_ADDRESS = 'SECRET_INFOMATION';
-const UDP_PORT = 53;
+const { UDP_ADDRESS, UDP_PORT } = require('./config.json');
+
+const state = {
+    hasRecieved: false
+};
+
 /**
  * @description Handle CampusNet Connection
  */
 const CampusNet = {
     async connection() {
-        return (await got('http://baidu.com')).body.includes('baidu');
+        try {
+            return (await got('http://baidu.com')).body.includes('baidu');
+        } catch (e) {
+            return false;
+        }
     },
     /**
      * @param {{username,password}} userInfo
@@ -57,7 +65,6 @@ const login = async (msg, rinfo) => {
     if (isOnline) {
         return 'Already Online.';
     }
-    console.log(msg);
     const res = await CampusNet.login(JSON.parse(msg.toString()));
     return res;
 };

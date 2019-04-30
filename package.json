@@ -6,6 +6,11 @@
     "dependencies": {
         "got": "^9.6.0"
     },
+    "scripts": {
+        "login": "node ./client/index.js -i",
+        "logout": "node ./client/index.js -o",
+        "serve": "node ./server/index.js"
+    },
     "description": "Help you connect to HUST_WIRELESS automatically.",
     "author": "maniacata"
 }
